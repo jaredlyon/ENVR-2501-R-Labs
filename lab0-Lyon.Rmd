@@ -1,0 +1,54 @@
+---
+title: "Lab #0"
+author: "Jared Lyon"
+date: "January 26, 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# This is where you set global options (leave as-is)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Task 1
+
+### Question 1 
+
+This is an R markdown template. Any text written outside of the code chunks will
+be treated as regular text (i.e., ignored by the R interpreter). All R commands 
+need to be inserted into code chunks such as the one below:
+
+```{r}
+# This is the first code chunk demonstrating basic R commands
+summary(pressure)
+```
+
+The code chunks can be executed individually by clicking on the green **play** icon
+to the right. You can add more code chunks by clicking on the **Insert** icon 
+in the toolbar of the RStudio editor pane.
+
+### Question 2
+
+You can also embed plots in your R markdown file:
+
+```{r}
+# This is the second chunk demonstrating a simple figure
+plot(pressure, xlab = "Temperature", ylab  = "Pressure")
+```
+
+Clicking on the green **play** icon to the right of the code chunk will display the
+figure right below the code. Once you have answered all of the questions,
+you can compile the entire document by clicking on the **Knit** icon in the 
+toolbar of the RStudio editor pane This will produce an HTML file and display
+it in the **Viewer** pane of RStudio.
+
+# begin task stuff below
+```{r}
+str(pisco)
+```
+```{r}
+# Use functions subset and aggregate to compute the mean of chla_mean for each latitude between 36 and 50 degrees North
+pisco.chla.36.50 <- subset(pisco, subset = latitude >= 36 && latitude <= 50, select = c("chla", "latitude"))
+head(pisco.chla.36.50)
+aggregate(chla ~ latitude, FUN = mean, data = pisco)
+```

@@ -1,0 +1,33 @@
+---
+title: "Day 1 Demo Markdown"
+author: "jarebear <3"
+date: "1/26/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pisco <- read.csv(file = "http://faraway.neu.edu/biostats/pisco_env.csv")
+# pull out an observation from above file
+# row only
+pisco[14, ]
+# row plus column
+pisco[15, 3]
+# column only
+pisco[ , 2]
+
+#alternate way to pull data with the dollah dollah sign
+pisco$sitenum
+
+head(pisco)
+head(pisco, n = 2)
+
+dim(pisco)
+
+# logical operands
+43 == 2
+#returns false
+```
