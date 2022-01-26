@@ -44,11 +44,30 @@ it in the **Viewer** pane of RStudio.
 
 # begin task stuff below
 ```{r}
+#read in pisco
+pisco <- read.csv(file = "http://faraway.neu.edu/biostats/pisco_env.csv")
 str(pisco)
 ```
 ```{r}
 # Use functions subset and aggregate to compute the mean of chla_mean for each latitude between 36 and 50 degrees North
 pisco.chla.36.50 <- subset(pisco, subset = latitude >= 36 && latitude <= 50, select = c("chla", "latitude"))
-head(pisco.chla.36.50)
-aggregate(chla ~ latitude, FUN = mean, data = pisco)
+pisco.chla.aggregate <- aggregate(chla ~ latitude, FUN = mean, data = pisco)
+pisco.chla.aggregate
+```
+```{r}
+# Use functions subset and aggregate to compute the standard error of chla mean for each latitude between 36 and 50 degrees North. Recall that SE =σ√n, where σ is the standard deviation and n is the sample size. You will have to write a custom function to compute the standard error and make use of function length to determine sample size.
+pisco.chla.SE.36.50 <- subset(pisco, subset = latitude >= 36 && latitude <= 50, select = c("chla", "latitude"))
+pisco.chla.sd.aggregate <- aggregate(chla ~ latitude, FUN = function(x) {
+  sd(x) * sqrt(length(x))
+}, data = pisco)
+pisco.chla.sd.aggregate
+```
+```{r}
+# Plot the mean and the standard error of chla mean on two separate panels of the same figure
+
+# plot chla aggregate
+plot(pisco.chla.aggregate, type = "p", col = "red", pch = 1, ylab = "CHLA Mean", xlab = "Latitude (degrees N)")
+
+#plot sd
+plot(pisco.chla.sd.aggregate, type = "p", col = "blue", pch = 1, ylab = "CHLA Mean Standard Error", xlab = "Latitude (degrees N)")
 ```
