@@ -1,0 +1,96 @@
+---
+title: "Lab 1"
+author: "jarebear <3"
+date: "2/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Download the data
+d1 <- read.csv("http://faraway.neu.edu/biostats/lab1_dataset1.csv")
+```
+
+```{r}
+# Task 1
+str(d1)
+table(subset(d1, select = c("sex", "outcome", "treatment")))
+# Based on the generated table, the drug seems somewhat effective since more individuals that took the drug ended up with a not sick outcome. However, the drug appears to be somewhat more effective for females.
+
+# Disease prevalence based on sex
+prop.sick <- function(vec) {
+  sum(vec == "sick")/length(vec)
+}
+aggregate(outcome ~ sex + treatment, data = d1, FUN = prop.sick)
+
+# Disease prevalence is much stronger within the males. Furthermore, the drug seems effective in that the rate of sickness in individuals that received the drug was less than half of the rate of sickness in individuals that received the placebo. Clinicians should recommend the drug mostly to females.
+
+
+```
+```{r}
+# Task 2
+
+# Download the data
+d2 <- read.csv("http://faraway.neu.edu/biostats/lab1_dataset2.csv")
+str(d2)
+# Variable list: sex = character, treatment = integer, outcome = character, side.effects = character
+
+# Disease prevalence based on treatment
+prop.sick <- function(vec) {
+  sum(vec == "sick")/length(vec)
+}
+dosage.outcomes <- aggregate(outcome ~ sex + treatment, data = d2, FUN = prop.sick)
+dosage.outcomes
+# This data clarifies the effectiveness of the drug in females at low doses. However, the number 8 dosage appears to be most effective in both males and females.
+
+sick.males <- subset(dosage.outcomes, sex == "male") # Select males
+sick.females <- subset(dosage.outcomes, sex == "female") # Select females
+plot(sick.males$treatment, sick.males$outcome, ylim = c(0, 1), col = "blue",
+xlab = "Dosage", ylab = "Proportion of Sick Subjects")
+points(sick.females$treatment, sick.females$outcome, ylim = c(0,
+1), col = "red")
+legend(x = "topright", legend = c("Males", "Females"), col = c("blue",
+"red"), pch = 1)
+# Based on the plotted data, disease prevalence is much higher for males at low doses; high doses are needed to bring down disease prevalence in the male population, whereas females react positively to all doses. The change in prevalence over dosage is nonlinear for males, since it suddenly drops off between dosages 4 & 6. Dosage levels 6 & 7 seem to be most effective for both genders, whereas the largest discrepancy between dosage effectiveness between genders exists at the lower dosages. For females, dosage 2 is recommended; for males, dosage 8 is recommended.
+```
+
+```{r}
+# Task 3
+str(d2)
+
+prop.side.effects <- function(vec) {
+  sum(vec == "yes")/length(vec)
+}
+side.effects.aggregate <- aggregate(side.effects ~ sex + treatment, data = d2, FUN = prop.side.effects)
+# The proportion of side effects in females increases at a larger rate with respect to dosage as compared to males.
+
+# Create 2-row x 1-column figure
+par(mfrow = c(2, 1))
+
+# subsets
+males <- subset(side.effects.aggregate, sex == "male") # Select males
+females <- subset(side.effects.aggregate, sex == "female") # Select females
+
+# first plot
+plot(males$treatment, males$side.effects, ylim = c(0, 1), col = "red",
+xlab = "Dosage", ylab = "Proportion of Side Effects", main = "Males")
+points(sick.males$treatment, sick.males$outcome, ylim = c(0,
+1), col = "blue")
+legend(x = "topright", legend = c("Disease Prevalence", "Side Effects"), col = c("blue",
+"red"), pch = 1)
+
+#second plot
+plot(females$treatment, females$side.effects, ylim = c(0, 1), col = "red",
+xlab = "Dosage", ylab = "Proportion of Side Effects", main = "Females")
+points(sick.females$treatment, sick.females$outcome, ylim = c(0,
+1), col = "blue")
+legend(x = "topright", legend = c("Disease Prevalence", "Side Effects"), col = c("blue",
+"red"), pch = 1)
+
+# New recommendations based on data; males should take doses 5 or 6, females should take dose 3. The new information somewhat contradicts earlier assessments.
+```
+
+
