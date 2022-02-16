@@ -1,0 +1,131 @@
+---
+title: "lab2-Lyon"
+author: "jarebear <3"
+date: "2/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Download the data
+d2012 <- read.csv("http://faraway.neu.edu/biostats/lab2_dataset1.csv")
+d2008 <- read.csv("http://faraway.neu.edu/biostats/lab2_dataset2.csv")
+d2004 <- read.csv("http://faraway.neu.edu/biostats/lab2_dataset3.csv")
+
+str(d2012)
+str(d2008)
+str(d2004)
+```
+
+```{r}
+# Task 1
+skewness <- function(vec) {
+  result <- sum(((vec - mean(vec))/sd(vec))^3)
+  return(result)
+}
+
+population.size.2012 <- d2012$population.size
+population.size.2008 <- d2008$population.size
+population.size.2004 <- d2004$population.size
+
+#2012
+skewness(population.size.2012)
+mean(population.size.2012)
+median(population.size.2012)
+
+#2008
+skewness(population.size.2008)
+mean(population.size.2008)
+median(population.size.2008)
+
+#2004
+skewness(population.size.2004)
+mean(population.size.2004)
+median(population.size.2004)
+
+# Based on these values, the mean population size roughly remained the same with small fluctuations. The median population size steadily increased across all three election years. The skewness slightly decreased from 2004 to 2008 before plummeting in 2012.
+```
+
+```{r}
+# Democrat Trends
+hist(d2004$voted.democrat/d2004$population.size * 100, col = adjustcolor("steelblue1", alpha.f = 0.3), xlim = c(0, 100), xlab = "Percentage of Votes", main = "2004 & 2012 Democrat Votes", breaks = 30)
+
+par(new = TRUE)
+hist(d2012$voted.democrat/d2012$population.size * 100, axes = F, col = adjustcolor("blue4", alpha.f = 0.3), xlim = c(0, 100), xlab = "Percentage of Votes", main = "2004 & 2012 Democrat Votes", breaks = 7)
+
+legend(x = "topright", legend = c("2004 Vote Spread", "2012 Vote Spread"), col = c("steelblue1", "blue4"), pch = 1)
+
+# Republican Trends
+hist(d2004$voted.republican/d2004$population.size * 100, col = adjustcolor("red1", alpha.f = 0.3), xlim = c(0, 100), xlab = "Percentage of Votes", main = "2004 & 2012 Republican Votes", breaks = 30)
+
+par(new = TRUE)
+hist(d2012$voted.republican/d2012$population.size * 100, axes = F, col = adjustcolor("red4", alpha.f = 0.3), xlim = c(0, 100), xlab = "Percentage of Votes", main = "2004 & 2012 Republican Votes", breaks = 7)
+
+legend(x = "topright", legend = c("2004 Vote Spread", "2012 Vote Spread"), col = c("red1", "red4"), pch = 1)
+
+# Overall, these graphs demonstrate a higher level of political polarization between 2004 and 2012.
+```
+
+```{r}
+# Task 2
+# Use substr to extract first digit
+first.digit <- substr(as.character(d2012$voted.democrat),
+  start = 1, stop = 1)
+# Convert the first digit to a number
+first.digit <- as.numeric(first.digit)
+
+# Frequency of first digits
+digit.frequency <- as.data.frame(table(first.digit))
+
+# Benford's law
+expected <- log10(1 + 1/(1:9))
+# Expected count for each digit based on Benford's Law
+(expected <- round(expected * sum(digit.frequency$Freq)))
+
+# Plot results
+bp = barplot(digit.frequency$Freq, names = 1:9, xlab = "Digit", ylab = "Frequency")
+par(new = TRUE)
+plot(expected, names = 1:9, xlab = "Digit", ylab = "Frequency", axes = F, col = "red")
+legend(x = "topright", legend = c("Observed Digit Frequency", "Expected Digit Frequency"), col = c("grey", "red"), pch = 1)
+
+# chisq test
+chisq.test(x = digit.frequency$Freq, p = expected, rescale.p = TRUE)
+
+# The observed digit frequencies do not match the expected digit frequencies within the Chi-squared test, insinuating that the vote data was falsified!
+```
+
+```{r}
+# Task 3
+
+# P(Win)
+pW <- 0.5
+# P(Favored|Win)
+pF.W <- 0.75
+# P(Favored|Loss)
+pF.L <- 0.2
+# P(Being Favored)
+pF <- (pF.W * pW) + (pF.L * (1 - pW))
+pF
+
+# Calculate probability that the Democrat wins
+pW.F <- (pF.W * pW)/(pF)
+pW.F
+
+# Based on preliminary calculation, the Democratic candidate has a 78.95% chance of winning the election.
+# But now we can recalculate to visualize how this probability changes...
+
+# Create a vector of pW values (i.e., P(W))
+pWvals <- seq(0, 1, length = 101)
+# Initialize the vector of pW.Fvals (i.e., P(W|F))
+pW.Fvals <- numeric(100)
+for (i in 1:length(pWvals)) {
+  pW.Fvals[i] <- (pF.W * pWvals[i])/((pF.W * pWvals[i]) + (pF.L * (1 - pWvals[i])))
+}
+
+# Plot data
+plot(pW.Fvals, pWvals, xlab = "Probability of Winning if Favored", ylab = "Probability of Winning", col = "red", abline(b=1, a=0))
+```
+
