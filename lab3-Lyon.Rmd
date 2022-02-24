@@ -1,0 +1,107 @@
+---
+title: "lab 3"
+author: "jarebear <3"
+date: "2/23/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Task 1
+# 1) In order to design an experiment to test whether seed germination in the GMO is different than that of the wild type, three groups will be planted. The first negative control group will contain no seeds, the control will be that of the wild type, and the independent test will be that of the GMO type. Lab assistants tasked with counting the germinated seeds will not be told which group the given planter represents. Ideally, this experiment is replicated ten or more times to confirm and solidify its findings.
+
+# 2) Download the data;
+d1 <- read.csv("http://faraway.neu.edu/biostats/lab3_dataset1.csv")
+str(d1)
+
+# 3) Preliminary data plot;
+print('Mean number of germinated vs. non-germinated wild seeds:')
+mean(d1$wild.germinated)
+mean(d1$wild.notgerminated)
+
+print('Mean number of germinated vs. non-germinated GMO seeds:')
+mean(d1$gmo.germinated)
+mean(d1$gmo.notgerminated)
+
+print('Standard Error of germinated vs. non-germinated wild seeds:')
+germinated.wild.SE <- sd(d1$wild.germinated)/sqrt(10)
+notgerminated.wild.SE <- sd(d1$wild.notgerminated)/sqrt(10)
+germinated.wild.SE
+notgerminated.wild.SE
+
+print('Standard Error of germinated vs. non-germinated GMO seeds:')
+germinated.gmo.SE <- sd(d1$gmo.germinated)/sqrt(10)
+notgerminated.gmo.SE <- sd(d1$gmo.notgerminated)/sqrt(10)
+germinated.gmo.SE
+notgerminated.gmo.SE
+
+print('95% Confidence Interval of germinated vs. non-germinated wild seeds:')
+germinated.wild.CI.upper <- mean(d1$wild.germinated) + (1.96 * germinated.wild.SE)
+germinated.wild.CI.lower <- mean(d1$wild.germinated) - (1.96 * germinated.wild.SE)
+notgerminated.wild.CI.upper <- mean(d1$wild.notgerminated) + (1.96 * notgerminated.wild.SE)
+notgerminated.wild.CI.lower <- mean(d1$wild.notgerminated) - (1.96 * notgerminated.wild.SE)
+germinated.wild.CI.upper
+germinated.wild.CI.lower
+notgerminated.wild.CI
+notgerminated.wild.CI.lower
+
+print('95% Confidence Interval of germinated vs. non-germinated GMO seeds:')
+germinated.gmo.CI.upper <- mean(d1$gmo.germinated) + (1.96 * germinated.gmo.SE)
+germinated.gmo.CI.lower <- mean(d1$gmo.germinated) - (1.96 * germinated.gmo.SE)
+notgerminated.gmo.CI.upper <- mean(d1$gmo.notgerminated) + (1.96 * notgerminated.gmo.SE)
+notgerminated.gmo.CI.lower <- mean(d1$gmo.notgerminated) - (1.96 * notgerminated.gmo.SE)
+germinated.gmo.CI.upper
+germinated.gmo.CI.lower
+notgerminated.gmo.CI.upper
+notgerminated.gmo.CI.lower
+```
+
+```{r}
+# 4) Plot above values;
+germinate.matrix <- matrix(c(mean(d1$wild.germinated), mean(d1$wild.notgerminated), mean(d1$gmo.germinated), mean(d1$gmo.notgerminated)), nrow = 2, ncol = 2)
+germinate.matrix
+
+bp <- barplot(germinate.matrix, 
+              beside = T, 
+              names = c("Wild germ","Wild nongerm", "GMO germ", "GMO nongerm"), 
+              ylim = c(0,max(germinate.matrix + 10)), 
+              ylab = "Number of seeds")
+arrows(y0 = c(germinated.wild.CI.lower, notgerminated.wild.CI.lower, germinated.gmo.CI.lower, notgerminated.gmo.CI.lower), y1 = c(germinated.wild.CI.upper, notgerminated.wild.CI.upper, germinated.gmo.CI.upper, notgerminated.gmo.CI.upper), x0 = bp, x1 = bp, angle = 90, code = 3, length = 0.1, col = "dark red")
+
+# 5) Yes, our toils were worth it! The GMO plants germinate at a significantly higher rate than that of the wild type.
+
+# 6) For the Fisher test, the null hypothesis is that the GMO plants have a similar rate of germination to that of the wild type. The alternate hypothesis is that the GMO plants have a greater rate of germination to that of the wild type.
+
+# 7) Fisher test;
+fisher.matrix <- matrix(c(colSums(d1[-1])), nrow = 2, ncol =2)
+fisher.matrix
+fisher.test(fisher.matrix, alternative = "greater")
+
+# 8) The fisher test concludes that the GMO plants germinate at a significantly higher rate.
+```
+```{r}
+# Task 2
+# Download the data
+d2 <- read.csv("http://faraway.neu.edu/biostats/lab3_dataset2.csv")
+str(d2)
+
+# 1) Our null hypothesis is that the GMO plants do not have a statistically significant difference in disease prevalence as compared to the wild type. The alternative hypothesis is that the GMO plants do have a higher incidence of disease.
+
+# 2) Fisher test;
+fisher.disease.matrix <- matrix(c(colSums(d2[-1])), nrow = 2, ncol =2)
+fisher.disease.matrix
+fisher.test(fisher.disease.matrix, alternative = "greater")
+
+# 3) The Fisher test tells us that there is a correlation between GMO plants and disease incidence.
+
+# 4)
+pVals <- numeric(NROW(d2))
+for (i in 1:NROW(d2)) {
+  pVals[i] <- fisher.test(cbind(t(d2[i, 2:3]), t(d2[i, 4:5])), alternative = "greater")$p.value
+}
+pVals
+```
+
