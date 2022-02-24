@@ -45,7 +45,7 @@ notgerminated.wild.CI.upper <- mean(d1$wild.notgerminated) + (1.96 * notgerminat
 notgerminated.wild.CI.lower <- mean(d1$wild.notgerminated) - (1.96 * notgerminated.wild.SE)
 germinated.wild.CI.upper
 germinated.wild.CI.lower
-notgerminated.wild.CI
+notgerminated.wild.CI.upper
 notgerminated.wild.CI.lower
 
 print('95% Confidence Interval of germinated vs. non-germinated GMO seeds:')
