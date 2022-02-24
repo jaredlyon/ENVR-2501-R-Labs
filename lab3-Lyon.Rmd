@@ -103,5 +103,7 @@ for (i in 1:NROW(d2)) {
   pVals[i] <- fisher.test(cbind(t(d2[i, 2:3]), t(d2[i, 4:5])), alternative = "greater")$p.value
 }
 pVals
+
+# 5) Only India has a significant rate of disease prevalence. All other countries appear fine.
 ```
 
