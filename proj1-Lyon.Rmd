@@ -25,15 +25,18 @@ The probability of having the swine flu given detection is 0.9130
 ## 2.
 ```{r}
 p.D.F2 <- 0.7
+# Assign four equally spaced prevalance values
 p.F2 <- seq(from = 0.2, to = 0.8, by = ((0.8 - 0.2)/3))
+# Assign 100 equally spaced false detection rates
 p.D.opF2 <- seq(from = 0.01, to = 0.5, by = ((0.5 - 0.01)/99))
+# Create matrix
 p.F2.D <- matrix(nrow = length(p.F2), ncol = length(p.D.opF2))
-p.F2.D
 
+# Nested loop to fill matrix
 for (i in 1:NROW(p.F2.D)) {
   for (j in 1:NCOL(p.F2.D)) {
-    p.D <- (p.D.F2 * p.F2:i) + (p.D.opF2:j * (1 - p.F2:i))
-    p.F2.D[i, j] <- ((p.D.F2 * p.F2:i)/p.D)
+    # Calculate probability of having the flu given detection at each point in the above sequences
+    p.F2.D[i, j] <- ((p.D.F2 * p.F2[i])/((p.D.F2 * p.F2[i]) + (p.D.opF2[j] * (1 - p.F2[i]))))
   }
 }
 p.F2.D
