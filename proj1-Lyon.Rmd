@@ -61,3 +61,38 @@ legend(x = "topright", legend = c("0.2 Disease Prevalence Rate", "0.4 Disease Pr
 ```
 ## 4.
 The dashed line represents a 0.5 probability of having the flu given detection. Any above this line would suggest a testing protocol that is more accurate than not. Overall the figure suggests that the probability of having swine flu given detection lowers as the false detection rate rises; thus, ideal tests have the lowest false detection rate and thus yield the highest probability of detecting true positives. A lower prevalence rate exacerbates the effects of the false detection rate; notice how the downwards curve of the matrix rows increases as the prevalence rate lowers, thus creating an illustration that would suggest the test with a 0.3 false detection rate when disease prevalcne is 0.8 would still be roughly as accurate as a test with a 0.2 false detection rate when disease prevalence is 0.2.
+
+### Problem 2
+```{r}
+# Read in the data
+d1 <- read.csv(file="http://faraway.neu.edu/biostats/assn1_dataset1.csv")
+str(d1)
+```
+
+## 1. 
+Null hypothesis: There is no association between age and swine flu prevalence.
+Alternate hypothesis: There is an positive association between age and swine flu prevalence.
+
+## 2. 
+```{r}
+# Create 2-row x 1-column figure
+par(mfrow = c(2, 1))
+
+## Create panel 1 -> age distribution of swine patients
+swine.data <- subset(d1, flu == "swine", select = age)
+hist(swine.data$age, col = adjustcolor("red1"), xlim = c(0, 90), xlab = "Age", main = "Age Breakdown of Patients with Swine Flu")
+
+## Create panel 2 -> age distribution of seasonal patients
+seasonal.data <- subset(d1, flu == "seasonal", select = age)
+hist(seasonal.data$age, col = adjustcolor("red1"), xlim = c(0, 90), xlab = "Age", main = "Age Breakdown of Patients with Seasonal Flu")
+```
+
+## 3.
+The histogram distributions tell us that the swine flue targets individuals around the 15-70 age group, with most of this distribution being in the center. On the other hand, the seasonal flu only targets individuals ages below 20 and above 60. Notwithstanding minimal overlap between these age distributions, it appears that the two diseases do not target the same age demographics.
+
+## 4.
+```{r}
+aggregate(, data = d2, FUN = prop.side.effects)
+```
+
+
