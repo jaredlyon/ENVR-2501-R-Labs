@@ -71,7 +71,7 @@ str(d1)
 
 ## 1. 
 Null hypothesis: There is no association between age and swine flu prevalence.
-Alternate hypothesis: There is an positive association between age and swine flu prevalence, specifically in the young adult age demographic.
+Alternate hypothesis: There is an association between age and swine flu prevalence, specifically in the young adult age demographic.
 
 ## 2. 
 ```{r}
@@ -80,36 +80,40 @@ par(mfrow = c(2, 1))
 
 ## Create panel 1 -> age distribution of swine patients
 swine.data <- subset(d1, flu == "swine", select = age)
-hist(swine.data$age, col = adjustcolor("red1"), xlim = c(0, 90), xlab = "Age", main = "Age Breakdown of Patients with Swine Flu")
+hist(swine.data$age, col = adjustcolor("red1"), xlim = c(0, 90), xlab = "Age", main = "Age Breakdown of Patients with Swine Flu", breaks = 30)
 
 ## Create panel 2 -> age distribution of seasonal patients
 seasonal.data <- subset(d1, flu == "seasonal", select = age)
-hist(seasonal.data$age, col = adjustcolor("red1"), xlim = c(0, 90), xlab = "Age", main = "Age Breakdown of Patients with Seasonal Flu")
+hist(seasonal.data$age, col = adjustcolor("red1"), xlim = c(0, 90), xlab = "Age", main = "Age Breakdown of Patients with Seasonal Flu", breaks = 30)
 ```
 
 ## 3.
-The histogram distributions tell us that the swine flue targets individuals around the 15-70 age group, with most of this distribution being in the center. On the other hand, the seasonal flu only targets individuals ages below 20 and above 60. Notwithstanding minimal overlap between these age distributions, it appears that the two diseases do not target the same age demographics.
+The histogram distributions tell us that the swine flue targets individuals around the 18-65 age group, with most of this distribution being in the center. On the other hand, the seasonal flu only targets individuals ages below 18 and above 65. Notwithstanding minimal overlap between these age distributions, it appears that the two diseases do not target the same age demographics.
 
 ## 4.
 ```{r}
 # Aggregate counts of swine data for the 18-65 age group
-middle.subset <- subset(d1, age > 18 && age < 65)
+middle.subset <- subset(d1, age > 18, age < 65)
 aggregate.middle.data <- aggregate(age ~ flu, data = middle.subset, FUN = length)
 aggregate.middle.data
 
-# Aggregate counts of seasonal data for the >18 age group
-young.subset <- subset(d1, age < 18)
-aggregate.young.data <- aggregate(age ~ flu, data = young.subset, FUN = length)
-aggregate.young.data
-
-# Aggregate counts of swine data for the 65< age group
-old.subset <- subset(d1, age > 65)
-aggregate.old.data <- aggregate(age ~ flu, data = old.subset, FUN = length)
-aggregate.old.data
+# Aggregate counts of seasonal data for the <18 and >65 age group
+outer.subset <- subset(d1, age < 18 | age > 65)
+aggregate.outer.data <- aggregate(age ~ flu, data = outer.subset, FUN = length)
+aggregate.outer.data
 
 #combine aggregates into a single data frame
-aggregate.total <- data.frame(aggregate.young.data, aggregate.middle.data, aggregate.old.data)
+aggregate.total <- data.frame(aggregate.middle.data$age, aggregate.outer.data$age)
+# Add names to rows and columns in data frame
+x <- c("Children/Elderly", "Adults")
+colnames(aggregate.total) <- x
+y <- c("Seasonal Flu", "Swine Flu")
+rownames(aggregate.total) <- y
 aggregate.total
 ```
 
-
+## 5.
+```{r}
+chisq.test(aggregate.total)
+```
+The p-value is <2.2e-16; thus, we can reject the null hypothesis in favor of the alternate hypothesis. There is a definitive link between age and swine flu prevalence, specifically that young adults are the most at-risk for contracting the new swine strain.
