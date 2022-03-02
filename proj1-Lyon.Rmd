@@ -1,0 +1,30 @@
+---
+title: "Project 1"
+author: "Jared Lyon"
+output: html_document
+---
+
+### Problem 1
+## 1.
+```{r}
+# Probability of detecting swine flu given that it was contracted
+pD.F2 <- 0.7
+# False detection rate
+pD.opF2 <- 0.1
+# Swine flu prevalence
+pF2 <- 0.6
+# Calculate probability of detection
+pD <- (pD.F2 * pF2) + (pD.opF2 * (1 - pF2))
+
+# Calculate the probability of having the swine flu, given detection
+pF2.D <- (pD.F2 * pF2)/pD
+pF2.D
+```
+The probability of having the swine flu given detection is 0.9130
+
+## 2.
+```{r}
+plot(pisco$latitude, pisco$chla, xlab="Latitude", ylab="[chl-a]")
+```
+
+There appears to be a clear latitudinal trend in primary production ([chl-a]) along the West Coast of the US, with chl-a increasing with latitude.
