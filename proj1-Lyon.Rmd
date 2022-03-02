@@ -41,3 +41,23 @@ for (i in 1:NROW(p.F2.D)) {
 }
 p.F2.D
 ```
+
+## 3.
+```{r}
+# Plot the matrix generated in question 2
+# Plot the first row of p.F2.D
+plot(p.D.opF2, p.F2.D[1, ], xlab = "False Detection Rate", ylab = "Probability of Having the Flu Given Detection", col = "red", abline(b = 0, a = 0.5, lty = "dotted"))
+# Plot the second row of p.F2.D
+par(new = TRUE)
+plot(p.D.opF2, p.F2.D[2, ], xlab = "False Detection Rate", ylab = "Probability of Having the Flu Given Detection", col = "blue", axes = F)
+# Plot the third row of p.F2.D
+par(new = TRUE)
+plot(p.D.opF2, p.F2.D[3, ], xlab = "False Detection Rate", ylab = "Probability of Having the Flu Given Detection", col = "green", axes = F)
+# Plot the fourth row of p.F2.D
+par(new = TRUE)
+plot(p.D.opF2, p.F2.D[4, ], xlab = "False Detection Rate", ylab = "Probability of Having the Flu Given Detection", col = "orange", axes = F)
+# Add a legend to the graph
+legend(x = "topright", legend = c("0.2 Disease Prevalence Rate", "0.4 Disease Prevalence Rate", "0.6 Disease Prevalence Rate", "0.8 Disease Prevalence Rate"), col = c("red", "blue", "green", "orange"), pch = 1)
+```
+## 4.
+The dashed line represents a 0.5 probability of having the flu given detection. Any above this line would suggest a testing protocol that is more accurate than not. Overall the figure suggests that the probability of having swine flu given detection lowers as the false detection rate rises; thus, ideal tests have the lowest false detection rate and thus yield the highest probability of detecting true positives. A lower prevalence rate exacerbates the effects of the false detection rate; notice how the downwards curve of the matrix rows increases as the prevalence rate lowers, thus creating an illustration that would suggest the test with a 0.3 false detection rate when disease prevalcne is 0.8 would still be roughly as accurate as a test with a 0.2 false detection rate when disease prevalence is 0.2.
