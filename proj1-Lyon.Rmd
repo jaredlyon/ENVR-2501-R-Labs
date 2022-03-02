@@ -71,7 +71,7 @@ str(d1)
 
 ## 1. 
 Null hypothesis: There is no association between age and swine flu prevalence.
-Alternate hypothesis: There is an positive association between age and swine flu prevalence.
+Alternate hypothesis: There is an positive association between age and swine flu prevalence, specifically in the young adult age demographic.
 
 ## 2. 
 ```{r}
@@ -92,7 +92,24 @@ The histogram distributions tell us that the swine flue targets individuals arou
 
 ## 4.
 ```{r}
-aggregate(, data = d2, FUN = prop.side.effects)
+# Aggregate counts of swine data for the 18-65 age group
+middle.subset <- subset(d1, age > 18 && age < 65)
+aggregate.middle.data <- aggregate(age ~ flu, data = middle.subset, FUN = length)
+aggregate.middle.data
+
+# Aggregate counts of seasonal data for the >18 age group
+young.subset <- subset(d1, age < 18)
+aggregate.young.data <- aggregate(age ~ flu, data = young.subset, FUN = length)
+aggregate.young.data
+
+# Aggregate counts of swine data for the 65< age group
+old.subset <- subset(d1, age > 65)
+aggregate.old.data <- aggregate(age ~ flu, data = old.subset, FUN = length)
+aggregate.old.data
+
+#combine aggregates into a single data frame
+aggregate.total <- data.frame(aggregate.young.data, aggregate.middle.data, aggregate.old.data)
+aggregate.total
 ```
 
 
