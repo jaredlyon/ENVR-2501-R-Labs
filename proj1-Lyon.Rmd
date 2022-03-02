@@ -105,7 +105,7 @@ aggregate.outer.data
 #combine aggregates into a single data frame
 aggregate.total <- data.frame(aggregate.middle.data$age, aggregate.outer.data$age)
 # Add names to rows and columns in data frame
-x <- c("Children/Elderly", "Adults")
+x <- c("Adults", "Children/Elderly")
 colnames(aggregate.total) <- x
 y <- c("Seasonal Flu", "Swine Flu")
 rownames(aggregate.total) <- y
