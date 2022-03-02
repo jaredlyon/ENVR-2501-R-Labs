@@ -8,23 +8,33 @@ output: html_document
 ## 1.
 ```{r}
 # Probability of detecting swine flu given that it was contracted
-pD.F2 <- 0.7
+p.D.F2 <- 0.7
 # False detection rate
-pD.opF2 <- 0.1
+p.D.opF2 <- 0.1
 # Swine flu prevalence
-pF2 <- 0.6
+p.F2 <- 0.6
 # Calculate probability of detection
-pD <- (pD.F2 * pF2) + (pD.opF2 * (1 - pF2))
+p.D <- (p.D.F2 * p.F2) + (p.D.opF2 * (1 - p.F2))
 
 # Calculate the probability of having the swine flu, given detection
-pF2.D <- (pD.F2 * pF2)/pD
-pF2.D
+p.F2.D <- (p.D.F2 * p.F2)/p.D
+p.F2.D
 ```
 The probability of having the swine flu given detection is 0.9130
 
 ## 2.
 ```{r}
-plot(pisco$latitude, pisco$chla, xlab="Latitude", ylab="[chl-a]")
+p.D.F2 <- 0.7
+p.F2 <- seq(from = 0.2, to = 0.8, by = ((0.8 - 0.2)/3))
+p.D.opF2 <- seq(from = 0.01, to = 0.5, by = ((0.5 - 0.01)/99))
+p.F2.D <- matrix(nrow = 4, ncol = 100)
+# Loop across values of one parameter
+for (i in 1:NROW(p.F2.D)) {
+  # Loop across values of other parameter
+  for (j in 1:NCOL(p.F2.D)) {
+    p.D <- (p.D.F2 * p.F2) + (p.D.opF2 * (1 - p.F2))
+    p.F2.D[i,j] <- (p.D.F2 * p.F2)/p.D
+  }
+}
+p.F2.D
 ```
-
-There appears to be a clear latitudinal trend in primary production ([chl-a]) along the West Coast of the US, with chl-a increasing with latitude.
