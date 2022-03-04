@@ -1,0 +1,45 @@
+---
+title: "assignment 2"
+author: "jarebear <3"
+date: "3/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+d <- data.frame(Fires = c(10, 32, 28, 21, 3, 1, 1))
+d
+
+tab <- matrix(c(10, 32, 28, 21, 3, 1, 1), ncol=1, byrow=TRUE)
+colnames(tab) <- c('Fires')
+rownames(tab) <- c('0', '1', '2', '3', '4', '5', '6')
+tab <- as.table(tab)
+
+tab
+```
+```{r}
+tab2 <- matrix(c(106, 67, 11, 16), ncol=2, byrow=TRUE)
+colnames(tab2) <- c('Unvaccinated','Vaccinated')
+rownames(tab2) <- c('No myocarditis','Myocarditis')
+tab2 <- as.table(tab2)
+
+tab2
+```
+```{r}
+chisq.test(tab2)
+```
+
+```{r}
+tab3 <- matrix(c(199, 99, 1, 3), ncol=2, byrow=TRUE)
+colnames(tab3) <- c('All','Male')
+rownames(tab3) <- c('No myocarditis','Myocarditis')
+tab3 <- as.table(tab3)
+
+tab3
+
+t.test(tab3, alternative = "greater")
+```
+
