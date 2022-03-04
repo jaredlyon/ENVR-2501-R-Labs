@@ -21,6 +21,38 @@ tab <- as.table(tab)
 tab
 ```
 ```{r}
+lambda <- sum(d)/nrow(d)
+
+g <- 0:6
+(exp(-lambda) * lambda^g)/factorial(g)
+
+# Probabilities do not sum-up to 1
+(sum(dpois(g, lambda)))
+# [1] 0.9992145
+
+counts <- data.frame(Class = c(0:6, ">6"), Observed = c(tab,
+`>6` = 0), Expected = poisson * sum(tab))
+
+# Create dataframe containing the first 7 rows of df
+counts2 <- counts[1:7, ]
+# Replace row 7 with the sum of rows 7 and 8 from df
+counts2[7, 2:3] <- counts2[7, 2:3] + counts[8, 2:3]
+
+counts2
+
+(chisq <- sum((counts2$Observed - counts2$Expected)^2/counts2$Expected))
+chisq
+
+df <- 5
+alpha <- 0.05
+(crit <- (qchisq(alpha, df = df, lower.tail = FALSE))) # critical value
+
+pchisq(q = chisq, df = df, lower.tail = FALSE) # p-value
+
+chisq.test(counts2$Observed, p = counts2$Expected/sum(counts2$Expected))
+```
+
+```{r}
 tab2 <- matrix(c(106, 67, 11, 16), ncol=2, byrow=TRUE)
 colnames(tab2) <- c('Unvaccinated','Vaccinated')
 rownames(tab2) <- c('No myocarditis','Myocarditis')
