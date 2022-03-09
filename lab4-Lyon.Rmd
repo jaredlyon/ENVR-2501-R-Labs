@@ -25,7 +25,7 @@ HA: The two population groups do not have the same mean age.
 hist(d1$age, col = adjustcolor("red1"), xlim = c(0, 30), xlab = "Age", main = "Age Breakdown of Patients", breaks = 20)
 ```
 
-## 4.
+## 3.
 The distribution does not seem normal, but rather bimodal.
 ```{r}
 par(mfrow = c(2, 1))
@@ -40,6 +40,7 @@ control.group <- subset(d1, treatment == "control")
 treatment.group <- subset(d1, treatment == "vaccinated")
 t.test(control.group$age, treatment.group$age)
 ```
+The means of the ages between the control and vaccinated groups are statistically similar.
 
 ##5.
 Mean Age of control vs. treated patients:
@@ -135,7 +136,6 @@ treatment.score.lower
 ```{r}
 # Plot the results
 hpv.matrix <- matrix(c(mean(control.group$score), mean(treatment.group$score)), nrow = 1, ncol = 2)
-hpv.matrix
 
 bp <- barplot(hpv.matrix, 
               beside = T, 
@@ -143,6 +143,7 @@ bp <- barplot(hpv.matrix,
               ylim = c(0,max(hpv.matrix + 10)), 
               ylab = "HPV Score")
 arrows(y0 = c(control.score.lower, treatment.score.lower), y1 = c(control.score.upper, treatment.score.upper), x0 = bp, x1 = bp, angle = 90, code = 3, length = 0.1, col = "dark red")
+text(x = bp, y = c(control.score.upper, treatment.score.upper), c("a", "b"), pos = 3)
 ```
 
 ## 12.
@@ -224,7 +225,6 @@ d4.treatment.score.lower
 ```{r}
 # Plot the results
 autism.matrix <- matrix(c(mean(control.d4.group$autism), mean(treatment.d4.group$autism)), nrow = 1, ncol = 2)
-autism.matrix
 
 bp <- barplot(autism.matrix, 
               beside = T, 
@@ -232,6 +232,7 @@ bp <- barplot(autism.matrix,
               ylim = c(0, max(autism.matrix + 10)), 
               ylab = "Autism Score")
 arrows(y0 = c(d4.control.score.lower, d4.treatment.score.lower), y1 = c(d4.control.score.upper, d4.treatment.score.upper), x0 = bp, x1 = bp, angle = 90, code = 3, length = 0.1, col = "dark red")
+text(x = bp, y = c(d4.control.score.upper, d4.treatment.score.upper), c("a", "a"), pos = 3)
 ```
 
 ## 7. 
