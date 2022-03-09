@@ -1,0 +1,238 @@
+---
+title: "lab4"
+author: "jarebear <3"
+date: "3/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Task 1
+```{r}
+# Download the data
+d1 <- read.csv("http://faraway.neu.edu/biostats/lab4_dataset1.csv")
+str(d1)
+```
+
+## 1.
+H0: The two population groups have the same mean age.
+HA: The two population groups do not have the same mean age.
+
+## 2.
+```{r}
+hist(d1$age, col = adjustcolor("red1"), xlim = c(0, 30), xlab = "Age", main = "Age Breakdown of Patients", breaks = 20)
+```
+
+## 4.
+The distribution does not seem normal, but rather bimodal.
+```{r}
+par(mfrow = c(2, 1))
+hist(d1$age, col = adjustcolor("red1"), xlim = c(0, 30), xlab = "Age", main = "Age Breakdown of Patients", breaks = 20)
+hist(log10(d1$age), col = adjustcolor("red1"), xlab = "Age", main = "Age Breakdown of Patients", breaks = 20)
+```
+No, a log10 transformation is unnecessary, as it does not elucidate any more relevant information about the data.
+
+## 4.
+```{r}
+control.group <- subset(d1, treatment == "control")
+treatment.group <- subset(d1, treatment == "vaccinated")
+t.test(control.group$age, treatment.group$age)
+```
+
+##5.
+Mean Age of control vs. treated patients:
+```{r}
+mean(control.group$age)
+mean(treatment.group$age)
+```
+
+95% Confidence Interval of Age for control vs. treated patients:
+```{r}
+# Calculate standard error
+control.SE <- sd(control.group$age)/sqrt(60)
+treatment.SE <- sd(treatment.group$age)/sqrt(60)
+
+# Calculate confidence intervals
+control.upper <- mean(control.group$age) + (1.96 * control.SE)
+control.lower <- mean(control.group$age) - (1.96 * control.SE)
+treatment.upper <- mean(treatment.group$age) + (1.96 * treatment.SE)
+treatment.lower <- mean(treatment.group$age) - (1.96 * treatment.SE)
+```
+Control interval:
+```{r}
+control.upper
+control.lower
+```
+Treatment interval:
+```{r}
+treatment.upper
+treatment.lower
+```
+
+## 6.
+H0: The vaccine has no effect on disease prevalence.
+HA: The vaccine lowers disease prevalence.
+
+## 7.
+```{r}
+hist(d1$score, col = adjustcolor("red1"), xlab = "HPV Score", main = "HPV Score Breakdown of Patients", breaks = 30)
+```
+The distribution of HPV scores is not normal.
+
+## 8.
+```{r}
+qqnorm(d1$score)
+qqline(d1$score, col = "red")
+```
+The HPV scores of the patients are not normally distributed.
+
+## 9.
+```{r}
+log10.data.qq <- log10(d1$score)
+qqnorm(log10.data.qq)
+qqline(log10.data.qq, col = "red")
+```
+This time, performing a log10 transformation did help; now the data follows the qqline rather well!
+
+## 10. 
+```{r}
+t.test(control.group$score, treatment.group$score)
+```
+The is a difference in mean HPV scores between the control and treatment groups.
+
+## 11.
+Mean HPV Scores of control vs. treated patients:
+```{r}
+mean(control.group$score)
+mean(treatment.group$score)
+```
+
+95% Confidence Interval of HPV Score for control vs. treated patients:
+```{r}
+# Calculate standard error
+control.score.SE <- sd(control.group$score)/sqrt(60)
+treatment.score.SE <- sd(treatment.group$score)/sqrt(60)
+
+# Calculate confidence intervals
+control.score.upper <- mean(control.group$score) + (1.96 * control.score.SE)
+control.score.lower <- mean(control.group$score) - (1.96 * control.score.SE)
+treatment.score.upper <- mean(treatment.group$score) + (1.96 * treatment.score.SE)
+treatment.score.lower <- mean(treatment.group$score) - (1.96 * treatment.score.SE)
+```
+Control interval:
+```{r}
+control.score.upper
+control.score.lower
+```
+Treatment interval:
+```{r}
+treatment.score.upper
+treatment.score.lower
+```
+
+```{r}
+# Plot the results
+hpv.matrix <- matrix(c(mean(control.group$score), mean(treatment.group$score)), nrow = 1, ncol = 2)
+hpv.matrix
+
+bp <- barplot(hpv.matrix, 
+              beside = T, 
+              names = c("Control Group HPV Score", "Treatment Group HPV Score"), 
+              ylim = c(0,max(hpv.matrix + 10)), 
+              ylab = "HPV Score")
+arrows(y0 = c(control.score.lower, treatment.score.lower), y1 = c(control.score.upper, treatment.score.upper), x0 = bp, x1 = bp, angle = 90, code = 3, length = 0.1, col = "dark red")
+```
+
+## 12.
+Yes! This vaccine should be approved for HPV patients!
+
+## 13.
+```{r}
+score.ratio <- mean(control.group$score)/mean(treatment.group$score)
+score.ratio
+```
+The average HPV score of unvaccinated patients is three times higher than that of the vaccinated patients.
+
+
+# Task 2.
+## 1.
+```{r}
+# Download the data
+d3 <- read.csv("http://faraway.neu.edu/biostats/lab4_dataset3.csv")
+str(d3)
+```
+
+## 2.
+```{r}
+par(mfrow = c(1, 2))
+plot(d3$autism, col = adjustcolor("red1"), xlim = c(0, 30), ylab = "Autism Score", main = "Autism Breakdown of Patients")
+plot(d3$vaccine, col = adjustcolor("red1"), ylab = "Vaccine Score", main = "Vaccine Breakdown of Patients")
+```
+No, I do not understand why the public thinks there is a link between autism and vaccines; these graphs do not reveal any sort of statistical trend between the two.
+
+## 3.
+This study would involve the survey of as many children as possible in as many regions as possible. They will be divided by vaccination status, with the vaccinated children receiving scores that represent the amount of vaccines they have received. By observing each child over the course of their early years, we will attempt to draw a definitive correlation between autism and vaccine status. The study can be reproduced, since more subjects may be added to the survey as the survey goes on and more children come of age. The independent factors will be each child's vaccine status/score, with the dependent variable being the degree to which they exhibit autistic traits. In order to reduce compounding factors, each child will be observed over several years with scheduled reports every six months that list any injuries, diseases, or life effents that may exacerbate any of the variables being examined.
+
+## 4.
+```{r}
+# Download the data
+d4 <- read.csv("http://faraway.neu.edu/biostats/lab4_dataset4.csv")
+str(d4)
+```
+
+## 5.
+```{r}
+control.d4.group <- subset(d4, treatment == "control")
+treatment.d4.group <- subset(d4, treatment == "vaccine")
+
+t.test(control.d4.group$autism, treatment.d4.group$autism, alternative = "greater")
+```
+There is no evidence suggesting that vaccines cause a higher rate of autism. The p-value of the t-test leads us to accept the null hypothesis, which is that there is no statistical difference in autism prevalence between the control and vaccine groups.
+
+## 6.
+Mean Autism Scores of control vs. vaccine patients:
+```{r}
+mean(control.d4.group$autism)
+mean(treatment.d4.group$autism)
+```
+
+95% Confidence Interval of HPV Score for control vs. treated patients:
+```{r}
+# Calculate standard error
+d4.control.score.SE <- sd(control.d4.group$autism)/sqrt(60)
+d4.treatment.score.SE <- sd(treatment.d4.group$autism)/sqrt(60)
+
+# Calculate confidence intervals
+d4.control.score.upper <- mean(control.d4.group$autism) + (1.96 * d4.control.score.SE)
+d4.control.score.lower <- mean(control.d4.group$autism) - (1.96 * d4.control.score.SE)
+d4.treatment.score.upper <- mean(treatment.d4.group$autism) + (1.96 * d4.treatment.score.SE)
+d4.treatment.score.lower <- mean(treatment.d4.group$autism) - (1.96 * d4.treatment.score.SE)
+```
+Control interval:
+```{r}
+d4.control.score.upper
+d4.control.score.lower
+```
+Treatment interval:
+```{r}
+d4.treatment.score.upper
+d4.treatment.score.lower
+```
+
+```{r}
+# Plot the results
+autism.matrix <- matrix(c(mean(control.d4.group$autism), mean(treatment.d4.group$autism)), nrow = 1, ncol = 2)
+autism.matrix
+
+bp <- barplot(autism.matrix, 
+              beside = T, 
+              names = c("Control Group Autism Score", "Vaccine Group Autism Score"), 
+              ylim = c(0, max(autism.matrix + 10)), 
+              ylab = "Autism Score")
+arrows(y0 = c(d4.control.score.lower, d4.treatment.score.lower), y1 = c(d4.control.score.upper, d4.treatment.score.upper), x0 = bp, x1 = bp, angle = 90, code = 3, length = 0.1, col = "dark red")
+```
+
+## 7. 
+Although the data may show a slightly higher autism incidence in the vaccine group, it's important to note the overlapping of both group's 95% confidence intervals, which alone suggests that this difference is not statistically significant. Additionally, the t-test shows no link between autism incidence and vaccine administration; therefore, our data shows that vaccines do NOT cause autism.
