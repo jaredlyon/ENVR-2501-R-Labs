@@ -68,6 +68,7 @@ install.packages("MASS")
 ## 10.
 ```{r}
 labels <- multcompLetters(mortality.tukey$treatment[, "p adj"])$Letters
+labels <- labels[order(names(labels))]
 labels
 ```
 
@@ -116,6 +117,7 @@ plot(mortality.tukey.2)
 ## 3.
 ```{r}
 labels.2 <- multcompLetters(mortality.tukey.2$treatment[, "p adj"])$Letters
+labels.2 <- labels.2[order(names(labels.2))]
 labels.2
 
 # Compute means
