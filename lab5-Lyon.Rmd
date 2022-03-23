@@ -1,0 +1,140 @@
+---
+title: "lab 5"
+author: "jarebear <3"
+date: "3/23/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Download the data
+d1 <- read.csv("http://faraway.neu.edu/biostats/lab5_dataset1.csv")
+d1
+```
+
+# Task 1
+## 1.
+H0: There is no statistically significant difference between the mortality means of the control pests and the treated pests.
+HA: There is a statistically significant difference between the mortality means of the control pests and the treated pests.
+
+## 2.
+```{r}
+hist(d1$mortality, col = adjustcolor("red1"), xlab = "Mortality", main = "Mortality Breakdown of Pests", breaks = 30)
+```
+The data is not normally distributed; it is skewed left. Thus, a log10 transformation is needed.
+
+## 3.
+```{r}
+par(mfrow = c(2, 1))
+hist(d1$mortality, col = adjustcolor("red1"), xlab = "Mortality", main = "Mortality Breakdown of Pests", breaks = 30)
+hist(log10(d1$mortality), col = adjustcolor("red1"), xlab = "Mortality", main = "Translated Mortality Breakdown of Pests", breaks = 30)
+```
+Use the transformed data because it is normally distributed.
+
+## 4.
+```{r}
+mortality.aov <- aov(log10(mortality) ~ treatment, data = d1)
+summary(mortality.aov)
+```
+
+## 5.
+The ANOVA table shows a significance level of '***', indicating a statistically significant difference in morality across the treatment groups.
+
+## 6.
+A t-test can, at most, only analyze two groups at a time; since 5 group means are in need of analyzation, a t-test cannot be used.
+
+## 7.
+```{r}
+mortality.tukey <- TukeyHSD(mortality.aov)
+mortality.tukey
+```
+
+## 8.
+```{r}
+plot(mortality.tukey)
+```
+
+## 9.
+```{r}
+# Install multcompView & MASS packages
+install.packages("multcompView")
+require(multcompView)
+install.packages("MASS")
+```
+
+## 10.
+```{r}
+labels <- multcompLetters(mortality.tukey$treatment[, "p adj"])$Letters
+labels
+```
+
+## 11.
+```{r}
+# Compute means
+means <- aggregate(mortality ~ treatment, mean, data = d1)
+means
+# Compute standard errors
+stderrs <- aggregate(mortality ~ treatment, FUN = function(x) sd(x)/sqrt(length(x)), data = d1)
+stderrs
+# Create barplot figure
+bp <- barplot(means$mortality, names = means$treatment, ylab = "Mean mortality of pest", ylim = c(0, 20))
+# Add standard error bars
+arrows(x0 = bp, y0 = means$mortality - stderrs$mortality, y1 = means$mortality + stderrs$mortality, code = 3, angle = 90, length = 0.1)
+box()
+# Add text labels
+text(x = bp, y = means$mortality + stderrs$mortalit + 1, labels = labels)
+```
+
+## 12.
+Treatments 2 and 4 seem to be the most effective in increading pest mortality, with both have similar mortality means and errors just under 15%.
+
+# Task 2
+```{r}
+# Download the data
+d2 <- read.csv("http://faraway.neu.edu/biostats/lab5_dataset2.csv")
+str(d2)
+hist(d2$mortality, col = adjustcolor("red1"), xlab = "Mortality", main = "Mortality Breakdown of Pests", breaks = 30)
+```
+
+## 1.
+```{r}
+mortality.aov.2 <- aov(log10(mortality) ~ treatment, data = d2)
+summary(mortality.aov.2)
+```
+This ANOVA suggests a difference across the mortality means of the treatments.
+
+## 2.
+```{r}
+mortality.tukey.2 <- TukeyHSD(mortality.aov.2)
+mortality.tukey.2
+plot(mortality.tukey.2)
+```
+
+## 3.
+```{r}
+labels.2 <- multcompLetters(mortality.tukey.2$treatment[, "p adj"])$Letters
+labels.2
+
+# Compute means
+means.2 <- aggregate(mortality ~ treatment, mean, data = d2)
+means.2
+# Compute standard errors
+stderrs.2 <- aggregate(mortality ~ treatment, FUN = function(x) sd(x)/sqrt(length(x)), data = d2)
+stderrs.2
+# Create barplot figure
+bp.2 <- barplot(means.2$mortality, names = means.2$treatment, ylab = "Mean mortality of pest", ylim = c(0, 20))
+# Add standard error bars
+arrows(x0 = bp.2, y0 = means.2$mortality - stderrs.2$mortality, y1 = means.2$mortality + stderrs.2$mortality, code = 3, angle = 90, length = 0.1)
+box()
+# Add text labels
+text(x = bp, y = means.2$mortality + stderrs.2$mortalit + 1, labels = labels.2)
+```
+
+## 4.
+Treatments 3 and 4 had the lowest mortaliy rates, with treatment 4 just barely being lower than treatment 3. Their rates hover just under 5%.
+
+## 5.
+We recommend treatment 4, as it has the highest mortality for pests whilst maintaining the lowest mortality for natural predators.
