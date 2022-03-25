@@ -73,16 +73,33 @@ The p-value of 0.7865 indicates a result that is not statistically significant, 
 # Problem 2
 ## 1.
 ```{r}
-# ANSWER:
-df <- data.frame(speciesID = unique.species, moved.north = )
+# initialize data frame
+df <- data.frame(speciesID = results$speciesID, moved.north = (ifelse(results$moveDist > 0, TRUE, FALSE)))
+df
 # Extract the unique speciesID and their development from d1
-dev <- unique(subset(XXXX, select = XXXX))
+dev <- unique(subset(d1, select = c(development, speciesID)))
+dev
 # Combine dev and df into a single data frame
-df <- XXXX(df, dev)
-# Remove NA values for species with unknown
-# development type '.'
-df <- df[!is.na(XXXX), ]
+df <- merge(df, dev)
+df
+# Remove NA values for species with unknown development type '.'
+df <- df[!is.na(df$moved.north), ]
+df <- df[df$development != ".", ]
+df
 ```
+
+## 2.
+```{r}
+# Build contingency table based on data
+datatable <- table(df$development, df$moved.north, exclude = ".")
+colnames(datatable) = c("South", "North")
+datatable
+```
+```{r}
+# Plot the data
+
+```
+
 
 ## Problem 3
 ## 1.
