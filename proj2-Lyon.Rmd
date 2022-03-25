@@ -1,0 +1,131 @@
+---
+title: "project 2"
+author: "jarebear <3"
+date: "3/24/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1.
+```{r}
+# Read in data
+d1 <- read.csv(file = "http://faraway.neu.edu/biostats/assn2_dataset1.csv",
+as.is = FALSE)
+d1
+```
+
+## 1.
+```{r}
+# Fill in this code wherever there is an XXXX
+d1.y2000 <- subset(d1, year == 2000) # Extract data from years 2000
+d1.y2003 <- subset(d1, year == 2003) # Extract data from years 2003
+# Find unique species
+unique.species <- unique(d1$speciesID)
+# Initialize results
+results <- matrix(nrow = length(unique.species), ncol = 2, NA)
+# Compute the weighted mean of each species
+for (i in 1:length(unique.species)) {
+  tmp1 <- subset(d1.y2000, speciesID == unique.species[i])
+  tmp2 <- subset(d1.y2003, speciesID == unique.species[i])
+  results[i, ] <- c(weighted.mean(tmp1$lat, tmp1$abundance), weighted.mean(tmp2$lat, tmp2$abundance))
+}
+results
+results <- data.frame(speciesID = unique.species, moveDist = results[, 2] - results[, 1])
+results
+```
+
+## 2.
+```{r}
+# Add direction column to results -> 1 = North, 0 -> South
+results$direction <- ifelse(results$moveDist > 0, 1, 0)
+results
+```
+A positive moveDist (i.e. a direction of 1) indicates a northwards movement from 2000 to 2003. A negative moveDist (i.e. a direction of 0) indicates a southwards movement from 2000 to 2003.
+
+## 3.
+```{r}
+# Plot sums of North and South moving species
+direction.matrix <- matrix(c(sum(results$direction == 1, na.rm = TRUE), sum(results$direction == 0, na.rm = TRUE)), nrow = 1, ncol = 2)
+barplot(direction.matrix, names = c("North", "South"), ylab = "# of Species")
+```
+Although there is a slightly larger number of species moving south as compared to north, this difference is not statistically significant enough to suggest an overall southward shift in intertidal species. Moreover, the bar plot insinuates that there is not an overall northward shift in the population.
+
+## 4.
+In order to determine the statistical significance of the proportion of species that moved northward, we must conduct a binomial test.
+The null hypothesis is that the direction of migration is random, i.e. the probability that a species migrates north is 0.5.
+The alternate hypothesis is that the direction of migration is not random, i.e. the probability that a species migrates north is not 0.5.
+Because we are only examining the significance of species that moved north, the right tail of this test is the most important; we therefore conduct a right-tailed binomial test.
+```{r}
+# Probability of the null hypothesis
+p0 <- 0.5
+# number of trials n
+n <- sum(results$direction == 1, na.rm = TRUE) + sum(results$direction == 0, na.rm = TRUE)
+# number of successes k i.e. direction = 1 (north)
+k <- sum(results$direction == 1, na.rm = TRUE)
+# conduct right-tailed binomial test
+binom.test(k, n, alternative = "greater")
+```
+The p-value of 0.7865 indicates a result that is not statistically significant, therefore the null hypothesis can be accepted. There does not appear to be any external factors influencing the direction of migration of the population.
+
+# Problem 2
+## 1.
+```{r}
+# ANSWER:
+df <- data.frame(speciesID = unique.species, moved.north = )
+# Extract the unique speciesID and their development from d1
+dev <- unique(subset(XXXX, select = XXXX))
+# Combine dev and df into a single data frame
+df <- XXXX(df, dev)
+# Remove NA values for species with unknown
+# development type '.'
+df <- df[!is.na(XXXX), ]
+```
+
+## Problem 3
+## 1.
+```{r}
+# Read in data
+d2 <- read.csv(file = "http://faraway.neu.edu/biostats/assn2_dataset3.csv")
+d2
+```
+```{r}
+# Visualize migration patterns in order to check for normal distribution
+hist(d2$migration, main = "Distribution of Migration Patterns of Species")
+```
+The migration patterns are normally distributed, and because two sample means are each being compared to a given migration mean (2.4km/yr), a one-sample t-test can be applied to each sample, east and west, to reveal which population grouping may or may not adhere to the given migration pattern needed to outrun climate change.
+
+## 2.
+The null hypothesis is that there is no statistically significant difference between the tested sample mean (being either East or West Coast species) and the given mean represented by the value needed to outrun climate change (2.4km/yr).
+The null hypothesis is that there is a statistically significant difference between the tested sample mean (being either East or West Coast species) and the given mean represented by the value needed to outrun climate change (2.4km/yr.
+
+## 3.
+```{r}
+# Subset the data into two groups: West vs. East
+west.data <- subset(d2, coast == "West")
+east.data <- subset(d2, coast == "East")
+# t-test for west coast sample population
+t.test(west.data$migration, mu = 2.4)
+# t-test for east coast sample population
+t.test(east.data$migration, mu = 2.4)
+# not that mu = 2.4, which represents the expected migration rate of 2.4km/yr
+```
+The one-sample t-test involving the West Coast species shows a p-value of 0.04437, indicating that the null hypothesis can be rejected due to a statistically significant different between the mean of this migration sample group and the given mean needed to outrun climate change.
+The one-sample t-test involving the East Coast species shows a p-value of 0.6287, indicating that the null hypothesis can be accepted.
+
+## 4.
+```{r}
+# Compute means
+means <- aggregate(migration ~ coast, FUN = mean, data = d2)
+#Graph means
+bp <- barplot(means$migration, names = c("East", "West"), ylab = "Migration Movement (km)",
+ylim = c(0, 4.8))
+# Compute standard errors
+stderrs <- aggregate(migration ~ coast, FUN = function(x) sd(x)/sqrt(length(x)), data = d2)
+# Add standard errors to barplot
+arrows(x0 = bp, y0 = means$migration - stderrs$migration, y1 = means$migration + stderrs$migration, code = 3, angle = 90, length = 0.1)
+abline(a = 2.4, b = 0, col = "red", lty = "dotted")
+```
+From this plot, we can conclude that the East Coast species almost perfectly adhere to the expected migration rate of 2.4km/yr as a result of climate change; the lower bound of the mean's standard error is also below the expected 2.4km/yr migrate rate, further indicating that this specific sample population follows the expected behavior of our null hypothesis. On the other hand, the West Coast species outrun this expected mean by a significant margin, insinuating that there may be an external factor that is motivating them to migrate at a higher rate than expected, thus supporting the alternate hypothesis. Additionally, the error margins of the two sample means do not overlap, further indicating a statistically significant difference in the patterns of migration between the two population samples. In order to compare the migration rates between East and West Coast species, a two-sample t-test will need to be employed, since both sample distributions are normal and theoretically complementary.
