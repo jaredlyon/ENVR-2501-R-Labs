@@ -97,8 +97,20 @@ datatable
 ```
 ```{r}
 # Plot the data
-
+bp <- barplot(datatable, ylab = "# of Species Moving North vs. South", main = "Breakdown of Species Migration by Development")
 ```
+The data does not suggests that northwards movement is slightly more likely for Nonplank species, whereas southwards movement is slightly more likely for Plankfeed and Planknonfeed species. However, these differences do not appear to be overwhelmingly statistically significant, since the delta between the migration patterns of each development type do not exceed a difference of 3.
+
+## 3.
+The datatable that is being tested is a contingency table whose response and explanatory variables are categorical. Therefore, the best test for this contingency table is a chisq test.
+
+## 4.
+The null hypothesis of this test is that there is no relationship between the explanatory variable (development) and response variable (migration direction); i.e. the variables are independent.
+The alternate hypothesis of this test is that there is a statistically significant relationship between the explanatory variable (development) and response variable (migration direction); i.e. the variables are dependent.
+```{r}
+chisq.test(datatable)
+```
+A p-value od 0.5196 suggests a statistically insignificant results; we can therefore accept the null hypothesis. Due to the large p-value, we can thus assume that the migration direction of a species is independent of its development.
 
 
 ## Problem 3
