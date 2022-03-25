@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Read in data
 d1 <- read.csv(file = "http://faraway.neu.edu/biostats/assn2_dataset1.csv",
 as.is = FALSE)
-d1
+str(d1)
 ```
 
 ## 1.
@@ -51,6 +51,7 @@ A positive moveDist (i.e. a direction of 1) indicates a northwards movement from
 direction.matrix <- matrix(c(sum(results$direction == 1, na.rm = TRUE), sum(results$direction == 0, na.rm = TRUE)), nrow = 1, ncol = 2)
 barplot(direction.matrix, names = c("North", "South"), ylab = "# of Species", main = "Numerical Comparison of Species that Migrated North vs. South")
 ```
+
 Although there is a slightly larger number of species moving south as compared to north, this difference is not visually significant enough to suggest an overall southward shift in intertidal species. Moreover, the bar plot insinuates that there is not an overall northward shift in the population.
 
 ## 4.
@@ -75,13 +76,10 @@ The p-value of 0.7865 (>0.05) indicates a result that is not statistically signi
 ```{r}
 # initialize data frame with operator assigning true/false to direction of movement
 df <- data.frame(speciesID = results$speciesID, moved.north = (ifelse(results$moveDist > 0, TRUE, FALSE)))
-df
 # Extract the unique speciesID and their development from d1
 dev <- unique(subset(d1, select = c(development, speciesID)))
-dev
 # Combine dev and df into a single data frame
 df <- merge(df, dev)
-df
 # Remove NA values for species with unknown development type '.'
 df <- df[!is.na(df$moved.north), ]
 df <- df[df$development != ".", ]
@@ -99,6 +97,7 @@ datatable
 # Plot the data
 bp <- barplot(datatable, ylab = "# of Species Moving North vs. South", main = "Breakdown of Species Migration by Development")
 ```
+
 The data suggests that northwards movement is slightly more likely for Nonplank species, whereas southwards movement is slightly more likely for Plankfeed and Planknonfeed species. However, these differences do not appear to be overwhelmingly visually significant, since the deltas between the migration patterns of each development type do not exceed a difference of 5.
 
 ## 3.
@@ -118,12 +117,13 @@ A p-value of 0.5196 (>0.05) suggests a statistically insignificant result; we ca
 ```{r}
 # Read in data
 d2 <- read.csv(file = "http://faraway.neu.edu/biostats/assn2_dataset3.csv")
-d2
+str(d2)
 ```
 ```{r}
 # Visualize migration patterns in order to check for normal distribution
 hist(d2$migration, main = "Distribution of Migration Patterns of Species", xlab = "Migration Rate (km/yr)")
 ```
+
 The explanatory variable is categorical whereas the response variable is numerical. Additionally, the migration patterns are normally distributed, and because two sample means are each being compared to a given migration mean (2.4km/yr), a one-sample t-test can be applied to each sample, east and west, to reveal which population grouping may or may not adhere to the given migration pattern needed to outrun climate change.
 
 ## 2.
@@ -157,4 +157,5 @@ arrows(x0 = bp, y0 = means$migration - stderrs$migration, y1 = means$migration +
 # Add abline denoting 2.4km/yr rate of migration needed to outrun climate change
 abline(a = 2.4, b = 0, col = "red", lty = "dotted")
 ```
+
 From this plot, we can conclude that the East Coast species almost perfectly adhere to the expected migration rate of 2.4km/yr as a result of climate change; the lower bound of the mean's standard error is also below the expected 2.4km/yr migrate rate, further indicating that this specific sample population follows the expected behavior of our null hypothesis. On the other hand, the West Coast species outrun this expected mean by a significant margin, insinuating that there may be an external factor that is motivating them to migrate at a higher rate than expected, thus supporting the alternate hypothesis. Additionally, the error margins of the two sample means do not overlap, further indicating a statistically significant difference in the patterns of migration between the two population samples. In order to compare the migration rates between East and West Coast species, a two-sample t-test will need to be employed, since both sample distributions are normal and theoretically complementary.
