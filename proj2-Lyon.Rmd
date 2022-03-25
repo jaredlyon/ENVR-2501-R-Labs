@@ -93,7 +93,7 @@ d2
 ```
 ```{r}
 # Visualize migration patterns in order to check for normal distribution
-hist(d2$migration, main = "Distribution of Migration Patterns of Species")
+hist(d2$migration, main = "Distribution of Migration Patterns of Species", xlab = "Migration Rate (km/yr)")
 ```
 The migration patterns are normally distributed, and because two sample means are each being compared to a given migration mean (2.4km/yr), a one-sample t-test can be applied to each sample, east and west, to reveal which population grouping may or may not adhere to the given migration pattern needed to outrun climate change.
 
@@ -110,7 +110,7 @@ east.data <- subset(d2, coast == "East")
 t.test(west.data$migration, mu = 2.4)
 # t-test for east coast sample population
 t.test(east.data$migration, mu = 2.4)
-# not that mu = 2.4, which represents the expected migration rate of 2.4km/yr
+# note that mu = 2.4, which represents the expected migration rate of 2.4km/yr
 ```
 The one-sample t-test involving the West Coast species shows a p-value of 0.04437, indicating that the null hypothesis can be rejected due to a statistically significant different between the mean of this migration sample group and the given mean needed to outrun climate change.
 The one-sample t-test involving the East Coast species shows a p-value of 0.6287, indicating that the null hypothesis can be accepted.
@@ -120,8 +120,7 @@ The one-sample t-test involving the East Coast species shows a p-value of 0.6287
 # Compute means
 means <- aggregate(migration ~ coast, FUN = mean, data = d2)
 #Graph means
-bp <- barplot(means$migration, names = c("East", "West"), ylab = "Migration Movement (km)",
-ylim = c(0, 4.8))
+bp <- barplot(means$migration, names = c("East", "West"), ylab = "Migration Rate (km/yr)", ylim = c(0, 5), main = "Mean Migration Distance of Species by Coast")
 # Compute standard errors
 stderrs <- aggregate(migration ~ coast, FUN = function(x) sd(x)/sqrt(length(x)), data = d2)
 # Add standard errors to barplot
