@@ -1,0 +1,135 @@
+---
+title: "lab 6"
+author: "jarebear <3"
+date: "3/30/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Task 1
+```{r}
+# Download the data
+d1 <- read.csv("http://faraway.neu.edu/biostats/lab6_dataset1.csv")
+str(d1)
+```
+
+## 1.
+```{r}
+qqnorm(d1$score)
+qqline(d1$score)
+```
+A transformation is recommended because the data is not normally distributed.
+
+## 2.
+A log10 transformation is the most applicable:
+```{r}
+qqnorm(log10(d1$score))
+qqline(log10(d1$score), col = "blue")
+```
+
+## 3.
+```{r}
+hiv.aov <- aov(log10(score) ~ drug1 * drug2, d1)
+summary(hiv.aov)
+```
+
+## 4.
+Drug 1 has a significance score of >0.1, indicating a statistically insignificant difference in its viral scoring mean.
+Drug 1 & Drug 2 together have a significance score of between 0 and 0.001, indicating a statistically significant difference in its viral scoring mean that is greater than that of Drug 1 alone.
+Drug 2 has a significance score of between 0 and 0.001, indicating a statistically significant difference in its viral scoring mean out of all the treatment combinations.
+
+## 5.
+```{r}
+hiv.tukey <- TukeyHSD(hiv.aov)
+hiv.tukey
+plot(hiv.tukey)
+```
+
+## 6.
+The d1.trt:d2.ctrl-d1.ctrl:d2.ctrl comparison has a positive HIV score mean difference with a p-adj > 0.05, indicating that drug 1 alone neither effective nor does it elucidate a statistically significant effect.
+The d1.ctrl:d2.trt-d1.ctrl:d2.ctrl comparison has a negative HIV score mean difference with a p-adj < 0.05, indicating that drug 2 alone is effective in a statistically significant manner.
+The d1.trt:d2.trt-d1.ctrl:d2.ctrl comparison has the greatest negative HIV score mean difference with a p-adj < 0.05, indicating that drugs 1 & 2 together are the most effective treatment option; this result is also extremely statistically significant.
+
+
+## 7.
+```{r}
+require(multcompView, quietly = TRUE)
+# Compute the mean and std error of each group. You can do this a different way, if you like
+means <- tapply(log10(d1$score), list(d1$drug1, d1$drug2), mean)
+stderrs <- tapply(log10(d1$score), list(d1$drug1, d1$drug2), function(x) sd(x)/sqrt(length(x)))
+# Assign a label to each bar. You will need to insert the name of your model object
+labels <- multcompLetters(hiv.tukey$`drug1:drug2`[, "p adj"])$Letters
+# Order the labels
+labels <- labels[order(names(labels))]
+# Plot the figure
+bp <- barplot(means, beside = TRUE, ylab = "HIV Score Means", col = c("white", "darkgray"), ylim = c(0, 4))
+arrows(x0 = bp, y0 = means - stderrs, y1 = means + stderrs, angle = 90,
+len = 0.1, code = 3, xpd = NA)
+text(x = bp, y = means + stderrs, pos = 3, lab = labels, xpd = NA)
+box()
+legend(x = "topright", legend = c("d1.ctrl", "d1.trt"),
+fill = c("white", "darkgray"))
+```
+
+## 8.
+```{r}
+interaction.plot(d1$drug1, d1$drug2, log10(d1$score))
+```
+
+## 9.
+The results suggest that a concoction of drug 1 and drug 2 are the most statistically effective in reducing the viral load score. Drug 1 does not appear to be effective, whereas drug 2 appears statistically effective although not moreso than the concoction of both drugs.
+
+# Task 2
+```{r}
+# Download the data
+d2 <- read.csv("http://faraway.neu.edu/biostats/lab6_dataset2.csv")
+str(d2)
+```
+
+## 1.
+```{r}
+hiv.aov.2 <- aov(log10(score) ~ drug1 * drug2 * sex, d2)
+summary(hiv.aov.2)
+```
+
+## 2.
+```{r}
+par(mfrow = c(2, 1))
+interaction.plot(d2$drug1, d2$sex, log10(d2$score))
+interaction.plot(d2$drug2, d2$sex, log10(d2$score))
+```
+
+## 3.
+
+## 4.
+```{r}
+# Compute mean and standard error for each group
+means <- aggregate(log10(score) ~ drug1 + drug2 + sex, FUN = mean, data = d2)
+means
+stderrs <- aggregate(log10(score) ~ drug1 + drug2 + sex, FUN = function(x) sd(x)/sqrt(length(x)), data = d2)
+stderrs
+# Perform multiple comparisons
+mod.aov.tukey <- TukeyHSD(hiv.aov.2)
+# Generate labels for each bar
+labels <- multcompLetters(mod.aov.tukey$`drug1:drug2:sex`[,"p adj"])$Letters
+labels <- labels[order(names(labels))]
+# Plot bars
+bp <- barplot(means$`log10(score)`, beside = TRUE, ylim = c(0, 4), ylab = "HIV Score Means", col = c("white", "lightgray", "darkgray", "black"))
+arrows(x0 = bp, y0 = means$`log10(score)` - stderrs$`log10(score)`, y1 = means$`log10(score)` + stderrs$`log10(score)`, angle = 90,
+len = 0.1, code = 3, xpd = NA)
+# Add labels for Males and Females
+text(x = colMeans(bp)[1], y = -0.5, label = "Female", xpd = NA)
+text(x = colMeans(bp)[2], y = -0.5, label = "Male", xpd = NA)
+box()
+# Add bar labels based on multiple comparisons
+text(x = bp, y = means[, 4] + stderrs[, 4], pos = 3, lab = labels,
+xpd = NA)
+# Create appropriate labels for the legend to describe
+# the treatments
+legend(x = "topright", legend = c(XXXX, XXXX, XXXX, XXXX),
+fill = c("white", "lightgray", "darkgray", "black"))
+```
+## 5.
