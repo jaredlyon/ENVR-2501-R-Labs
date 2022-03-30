@@ -21,6 +21,7 @@ str(d1)
 qqnorm(d1$score)
 qqline(d1$score)
 ```
+
 A transformation is recommended because the data is not normally distributed.
 
 ## 2.
@@ -103,6 +104,7 @@ interaction.plot(d2$drug2, d2$sex, log10(d2$score))
 ```
 
 ## 3.
+The interaction plots suggest that drug 2 is significantly effective in reducing HIV viral means for both males and females whereas drug 1 is mostly effective for women, but not so much for men.
 
 ## 4.
 ```{r}
@@ -117,19 +119,21 @@ mod.aov.tukey <- TukeyHSD(hiv.aov.2)
 labels <- multcompLetters(mod.aov.tukey$`drug1:drug2:sex`[,"p adj"])$Letters
 labels <- labels[order(names(labels))]
 # Plot bars
-bp <- barplot(means$`log10(score)`, beside = TRUE, ylim = c(0, 4), ylab = "HIV Score Means", col = c("white", "lightgray", "darkgray", "black"))
-arrows(x0 = bp, y0 = means$`log10(score)` - stderrs$`log10(score)`, y1 = means$`log10(score)` + stderrs$`log10(score)`, angle = 90,
+bp <- barplot(cbind(means[0:4, 4], means[5:8, 4]), beside = TRUE, ylim = c(0, 4), ylab = "HIV Score Means", col = c("white", "lightgray", "darkgray", "black"))
+arrows(x0 = bp, x1 = bp, y0 = means$`log10(score)` - stderrs$`log10(score)`, y1 = means$`log10(score)` + stderrs$`log10(score)`, angle = 90,
 len = 0.1, code = 3, xpd = NA)
 # Add labels for Males and Females
-text(x = colMeans(bp)[1], y = -0.5, label = "Female", xpd = NA)
-text(x = colMeans(bp)[2], y = -0.5, label = "Male", xpd = NA)
+text(x = colMeans(bp)[1:4], y = -0.5, label = "Female", xpd = NA)
+text(x = colMeans(bp)[5:8], y = -0.5, label = "Male", xpd = NA)
 box()
 # Add bar labels based on multiple comparisons
 text(x = bp, y = means[, 4] + stderrs[, 4], pos = 3, lab = labels,
 xpd = NA)
 # Create appropriate labels for the legend to describe
 # the treatments
-legend(x = "topright", legend = c(XXXX, XXXX, XXXX, XXXX),
+legend(x = "topright", legend = c("d1.ctrl-d2.ctrl", "d1.trt-d2.ctrl", "d1.ctrl-d2.trt", "d1.trt-d2.trt"),
 fill = c("white", "lightgray", "darkgray", "black"))
 ```
+
 ## 5.
+For females, drug 2 alone is the most effective in curbing HIV virality, whereas men require a concoction of drug 1 and drug 2 for the most significant reduction.
