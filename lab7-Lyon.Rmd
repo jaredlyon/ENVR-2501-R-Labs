@@ -1,0 +1,171 @@
+---
+title: "lab7-lyon"
+author: "jarebear <3"
+date: "4/13/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Task 1.
+```{r}
+# Download the data
+co2 = read.table("http://faraway.neu.edu/biostats/lab7_co2.txt", header=TRUE)
+temp = read.csv("http://faraway.neu.edu/biostats/lab7_temp.csv")
+pop = read.csv("http://faraway.neu.edu/biostats/lab7_population.csv")
+```
+
+## 1.
+```{r}
+str(co2)
+str(temp)
+str(pop)
+
+range(co2$year)
+range(temp$Year)
+range(pop$year)
+```
+
+## 2.
+```{r}
+# Reshape from wide to long format
+temp.long = reshape(temp, varying = list(2:13), idvar = "Year", direction = "long")
+# Change column names
+colnames(temp.long) = c("year", "month", "temp")
+temp.long
+```
+
+## 3.
+```{r}
+# Average intra-annual variation
+temp.agg = aggregate(temp ~ year, FUN = mean, data = temp.long)
+co2.agg = aggregate(ppm ~ year, FUN = mean, data = co2)
+pop.agg = aggregate(popsize ~ year, FUN = mean, data = pop)
+
+temp.agg
+co2.agg
+pop.agg
+```
+
+## 4.
+```{r}
+# Merge the datasets two at a time
+merged = merge(co2.agg, temp.agg, by = "year")
+merged = merge(merged, pop.agg, by = "year")
+
+merged
+```
+
+# Task 2.
+## 1.
+```{r}
+qqnorm(merged$ppm, main = "ppm Normality Check")
+qqline(merged$ppm)
+qqnorm(merged$temp, main = "temp Normality Check")
+qqline(merged$temp)
+qqnorm(merged$popsize, main = "popsize Normality Check")
+qqline(merged$popsize)
+```
+
+It appears the temperature is normally distributed whereas ppm and popsize are not.
+
+## 2.
+```{r}
+qqnorm(log10(merged$ppm), main = "ppm Normality Check")
+qqline(log10(merged$ppm))
+qqnorm(merged$temp, main = "temp Normality Check")
+qqline(merged$temp)
+qqnorm(log10(merged$popsize), main = "popsize Normality Check")
+qqline(log10(merged$popsize))
+```
+
+The log10 transformations of ppm and temperature are not normally distributed either.
+
+## 3.
+H0: The response variables (temperature, population size, ppm) are not related to the explanatory variable (year).
+HA: The response variables (temperature, population size, ppm) are related to the explanatory variable (year).
+
+## 4.
+```{r}
+lm.ppm = lm(ppm ~ year, co2.agg)
+lm.temp = lm(temp ~ year, temp.agg)
+lm.popsize = lm(popsize ~ year, pop.agg)
+summary(lm.ppm)
+summary(lm.temp)
+summary(lm.popsize)
+```
+
+## 5.
+ppm, popsize, and temperature are all related to year in a statistically significant way, with the R-squared coefficient suggesting an extremely high quality of fit for population size, although the fit is slightly lower for temperature and much lower for ppm.
+
+## 6.
+This extrapolation assumes that the relationship between the year and its response variables are linear, which we know is not true since the current scientific consensus suggests that population size will begin to stagnate within the next couple of decades, thus making this extrapolation extremely unreliable.
+
+## 7.
+```{r}
+# New range of explanatory variable year
+newyears = data.frame(year = seq(from = 1880, to = 2050, by = 1))
+newyears 
+# Predict response variable based on each regression
+pred.vals.ppm = predict(lm.ppm, newdata = newyears, interval = "conf")
+pred.vals.temp = predict(lm.temp, newdata = newyears, interval = "conf")
+pred.vals.popsize = predict(lm.popsize, newdata = newyears, interval = "conf")
+
+pred.vals.ppm
+pred.vals.temp
+pred.vals.popsize
+```
+
+## 8.
+```{r}
+par(mfrow = c(3, 1))
+
+plot(temp.agg$year, temp.agg$temp, xlim = c(1880, 2050))
+abline(lm.temp, col = "red")
+lines(newyears$year, pred.vals.temp[, "lwr"], col = "red", lty = 2)
+lines(newyears$year, pred.vals.temp[, "upr"], col = "red", lty = 2)
+
+plot(co2.agg$year, co2.agg$ppm, xlim = c(1880, 2050))
+abline(lm.ppm, col = "red")
+lines(newyears$year, pred.vals.ppm[, "lwr"], col = "red", lty = 2)
+lines(newyears$year, pred.vals.ppm[, "upr"], col = "red", lty = 2)
+
+plot(pop.agg$year, pop.agg$popsize, xlim = c(1880, 2050))
+abline(lm.popsize, col = "red")
+lines(newyears$year, pred.vals.popsize[, "lwr"], col = "red", lty = 2)
+lines(newyears$year, pred.vals.popsize[, "upr"], col = "red", lty = 2)
+```
+
+## 9.
+We can cautiously assume that temperature, co2 emissions, and population size will continue to steadily grow upwards (even though we know this extrapolation to be false).
+
+## Task 3.
+```{r}
+cor(merged)
+pairs(merged)
+```
+
+## 2.
+```{r}
+lm.temp.ppm = lm(temp ~ ppm, merged)
+lm.temp.popsize = lm(temp ~ popsize, merged)
+summary(lm.temp.ppm)
+summary(lm.temp.popsize)
+```
+
+## 3.
+Temperature and population size are significantly related, as are ppm and temperature; however, the R-squared coefficient for the temperature ~ ppm relationship is lower.
+
+## 4.
+The problems lie within the fact that if the explanatory variables are colinear, the homogenaity rule will be violated and the results of the test will not be statistically significant.
+
+## 5.
+```{r}
+lm.alt = lm(temp ~ ppm * popsize * year, merged)
+summary(lm.alt)
+```
+
+## 6.
+None of the results are statistically significant; but this doesn't mean climate change isn't real, it just means this is a bad test.
