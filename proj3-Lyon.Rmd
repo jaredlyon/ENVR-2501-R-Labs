@@ -1,0 +1,160 @@
+---
+title: "Project 3"
+author: "jJared Lyon"
+date: "4/22/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+```{r}
+# read in data
+benguela <- read.csv("http://faraway.neu.edu/biostats/assn3_benguela.csv")
+california <- read.csv("http://faraway.neu.edu/biostats/assn3_california.csv")
+canary <- read.csv("http://faraway.neu.edu/biostats/assn3_canary.csv")
+humboldt <- read.csv("http://faraway.neu.edu/biostats/assn3_humboldt.csv")
+str(benguela)
+str(california)
+str(canary)
+str(humboldt)
+```
+
+## 1.
+```{r}
+# add before/after column
+california$period <- ifelse(california$year < 2025 , "before", "after")
+benguela$period <- ifelse(benguela$year < 2025, "before", "after")
+canary$period <- ifelse(canary$year < 2025, "before", "after")
+humboldt$period <- ifelse(humboldt$year < 2025, "before", "after")
+```
+
+## 2.
+```{r}
+# Multimodel mean for California
+california.mean <- data.frame(year = california$year, period = california$period,
+upwelling = rowMeans(california[1:22]))
+# Multimodel mean for Canary
+canary.mean <- data.frame(year = canary$year, period = canary$period,
+upwelling = rowMeans(canary[1:22]))
+# Multimodel mean for Humboldt
+humboldt.mean <- data.frame(year = humboldt$year, period = humboldt$period,
+upwelling = rowMeans(humboldt[1:22]))
+# Multimodel mean for Benguela
+benguela.mean <- data.frame(year = benguela$year, period = benguela$period,
+upwelling = rowMeans(benguela[1:22]))
+
+california.mean
+canary.mean
+humboldt.mean
+benguela.mean
+```
+
+## 3.
+In order to test for normality, a Shapiro-Wilk test will be applied to the datapoints of each set. Eight tests total are needed, since each of the four datasets has two periods. In all eight tests, the hypotheses are:
+H0: The sample population is normally distributed.
+HA: The sample population is not normally distributed.
+```{r}
+# shapiro test for before periods
+shapiro.test(as.matrix(subset(california.mean, period == "before", select = upwelling)))
+shapiro.test(as.matrix(subset(canary.mean, period == "before", select = upwelling)))
+shapiro.test(as.matrix(subset(humboldt.mean, period == "before", select = upwelling)))
+shapiro.test(as.matrix(subset(benguela.mean, period == "before", select = upwelling)))
+
+# shapiro test for after periods
+shapiro.test(as.matrix(subset(california.mean, period == "after", select = upwelling)))
+shapiro.test(as.matrix(subset(canary.mean, period == "after", select = upwelling)))
+shapiro.test(as.matrix(subset(humboldt.mean, period == "after", select = upwelling)))
+shapiro.test(as.matrix(subset(benguela.mean, period == "after", select = upwelling)))
+```
+
+The p-values for all 'before' periods within the California, Benguela, Canary, and Humboldt models are >0.05, meaning the null hypothesis can be accepted and that these datasets are normally distributed. However, the p-values for the 'after' datasets for Canary and Humboldt are <0.05, meaning that we can reject the null hypothesis for these two sets and that they are not normally distributed. Lastly, the p-values of the 'after' datasets for California and Benguela are >0.05, thus we can accept the null hypothesis for these groups and assert that they are normally distributed.
+
+Because two of our eight tests showed an absence of normality, this means we must resort to non-parametric tests. Although non-parametric tests can be applied to more situations than their parametric counterparts since they do not rely on any distribution types, they have less statistical power due to a lack of assumptions that they make about the data.
+
+## 4.
+Since we must resort to non-parametric tests, a Mann-Whitney-Wilcox Test is the most applicable in order to compare the group means between each demographics 'before' and 'after' subsets. On the other hand, a t-test is rejected since the t-test assumes normality and is thus a parametric test. The test hypotheses are:
+H0: The sample means are equal.
+HA: The sample means are not equal.
+```{r}
+#conduct wilcox test on each of the four pairs
+# Canary
+model.upwelling.canary <- wilcox.test(as.matrix(subset(canary.mean,
+period == "before", select = upwelling)), as.matrix(subset(canary.mean,
+period == "after", select = upwelling)))
+model.upwelling.canary
+
+# California
+model.upwelling.california <- wilcox.test(as.matrix(subset(california.mean,
+period == "before", select = upwelling)), as.matrix(subset(california.mean,
+period == "after", select = upwelling)))
+model.upwelling.california
+
+# Humboldt
+model.upwelling.humboldt <- wilcox.test(as.matrix(subset(humboldt.mean,
+period == "before", select = upwelling)), as.matrix(subset(humboldt.mean,
+period == "after", select = upwelling)))
+model.upwelling.humboldt
+
+# Benguela
+model.upwelling.benguela <- wilcox.test(as.matrix(subset(benguela.mean,
+period == "before", select = upwelling)), as.matrix(subset(benguela.mean,
+period == "after", select = upwelling)))
+model.upwelling.benguela
+```
+
+The results of all four tests result in p-values lower than 0.05, meaning we can reject the null hypothesis and assert that none of the 'before' vs. 'after' demographic pairs have equal means.
+
+## 5.
+```{r}
+# Compute group means and stderrs for California
+mean.upwelling.california <- aggregate(upwelling ~ period, FUN = mean,
+data = california.mean)
+sderr.upwelling.california <- aggregate(upwelling ~ period, FUN = function(x) sd(x)/sqrt(length(x)),
+data = california.mean)
+
+# Compute group means and stderrs for Canary
+mean.upwelling.canary <- aggregate(upwelling ~ period, FUN = mean, data = canary.mean)
+sderr.upwelling.canary <- aggregate(upwelling ~ period, FUN = function(x) sd(x)/sqrt(length(x)),
+data = canary.mean)
+
+# Compute group means and stderrs for Humboldt
+mean.upwelling.humboldt <- aggregate(upwelling ~ period, FUN = mean,
+data = humboldt.mean)
+sderr.upwelling.humboldt <- aggregate(upwelling ~ period, FUN = function(x) sd(x)/sqrt(length(x)),
+data = humboldt.mean)
+
+# Compute group means and stderrs for Benguela
+mean.upwelling.benguela <- aggregate(upwelling ~ period, FUN = mean,
+data = benguela.mean)
+sderr.upwelling.benguela <- aggregate(upwelling ~ period, FUN = function(x) sd(x)/sqrt(length(x)),
+data = benguela.mean)
+```
+
+## 6.
+```{r}
+# Combine data into a single means dataframe
+upwelling.mean <- data.frame(region = c("Canary", "California",
+"Benguela", "Humboldt"), after = c(mean.upwelling.canary$upwelling[2],
+mean.upwelling.california$upwelling[2], mean.upwelling.benguela$upwelling[2],
+mean.upwelling.humboldt$upwelling[2]), before = c(mean.upwelling.canary$upwelling[1],
+mean.upwelling.california$upwelling[1], mean.upwelling.benguela$upwelling[1],
+mean.upwelling.humboldt$upwelling[1]))
+upwelling.mean
+
+# Combine data into a single stderrs dataframe
+upwelling.sderr <- data.frame(region = c("Canary", "California",
+"Benguela", "Humboldt"), after = c(sderr.upwelling.canary$upwelling[2],
+sderr.upwelling.california$upwelling[2], sderr.upwelling.benguela$upwelling[2],
+sderr.upwelling.humboldt$upwelling[2]), before = c(sderr.upwelling.canary$upwelling[1],
+sderr.upwelling.california$upwelling[1], sderr.upwelling.benguela$upwelling[1],
+sderr.upwelling.humboldt$upwelling[1]))
+upwelling.sderr
+
+## plot the results
+bp <- barplot(upwelling.mean, beside = TRUE, ylim = c(0, 1))
+arrows(x0 = bp, y0 = means$migration - stderrs$migration, y1 = means$migration + stderrs$migration, code = 3, angle = 90, length = 0.1)
+```
+
