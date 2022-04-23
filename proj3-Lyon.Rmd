@@ -154,7 +154,31 @@ sderr.upwelling.humboldt$upwelling[1]))
 upwelling.sderr
 
 ## plot the results
-bp <- barplot(upwelling.mean, beside = TRUE, ylim = c(0, 1))
+means.matrix <- matrix(upwelling.mean, nrow = 4, ncol = 3)
+bp <- barplot(means.matrix, beside = TRUE, ylim = c(0, 1))
 arrows(x0 = bp, y0 = means$migration - stderrs$migration, y1 = means$migration + stderrs$migration, code = 3, angle = 90, length = 0.1)
 ```
+
+## 7.
+
+# Problem 2
+## 1.
+The first possible test to compare sample variances is the parametric F-test, which assumes independent observations and normal distributions. The second possible test is the parametric Levene Test, which also compares sample variances; this test also assumes independent observations, but can be applied to quasi-normal distributions.
+
+## 2.
+Given that two of our eight data sets are not normal, the most applicable test to examine the variances of the groups is the Levene Test. The hypotheses for this test are as follows:
+H0: The variances of the groups are equal.
+HA: The variances of the groups are not equal.
+```{r}
+
+```
+
+## 3.
+
+## 4.
+
+# Problem 3
+## 1.
+
+
 
