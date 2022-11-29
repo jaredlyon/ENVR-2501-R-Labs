@@ -1,6 +1,6 @@
 ---
 title: "Project 3"
-author: "jJared Lyon"
+author: "Jared Lyon"
 date: "4/22/2022"
 output: html_document
 ---
@@ -154,31 +154,115 @@ sderr.upwelling.humboldt$upwelling[1]))
 upwelling.sderr
 
 ## plot the results
-means.matrix <- matrix(upwelling.mean, nrow = 4, ncol = 3)
-bp <- barplot(means.matrix, beside = TRUE, ylim = c(0, 1))
-arrows(x0 = bp, y0 = means$migration - stderrs$migration, y1 = means$migration + stderrs$migration, code = 3, angle = 90, length = 0.1)
+bp <- barplot(t(as.matrix(upwelling.mean[, 2:3])), beside = TRUE, ylim = c(0, 1), xlab = "Region", names = upwelling.mean$region, ylab = "Upwelling", main = "Before vs. After Upwelling Comparisons for EBCS Regions", legend = TRUE)
+arrows(x0 = bp, y0 = t(as.matrix(upwelling.mean[, 2:3])) - t(as.matrix(upwelling.sderr[, 2:3])), y1 = t(as.matrix(upwelling.mean[, 2:3])) + t(as.matrix(upwelling.sderr[, 2:3])), code = 3, angle = 90, length = 0.1)
+legend
 ```
 
 ## 7.
+Based on the results of the prior statistical tests and the figure produced, we can conclude that upwelling statistically decreases across all four models. One particular item to note within the figure is that none of the standard error bars overlap, further indicating that there is a statistically significant decrease in upwelling over time.
 
 # Problem 2
 ## 1.
 The first possible test to compare sample variances is the parametric F-test, which assumes independent observations and normal distributions. The second possible test is the parametric Levene Test, which also compares sample variances; this test also assumes independent observations, but can be applied to quasi-normal distributions.
 
 ## 2.
-Given that two of our eight data sets are not normal, the most applicable test to examine the variances of the groups is the Levene Test. The hypotheses for this test are as follows:
+Given that four tests will be conducted in order to compare the variances between two groups ('before' vs. 'after'), the most applicable test to examine the variances of the groups is the Levene Test since not all of our groups are normally distributed. The hypotheses for this test are as follows:
 H0: The variances of the groups are equal.
 HA: The variances of the groups are not equal.
 ```{r}
-
+# install levene test
+library(car)
 ```
 
+```{r}
+# conduct Levenetest on each of the four pairs
+# Canary
+var.upwelling.canary <- leveneTest(upwelling ~ period, canary.mean)
+var.upwelling.canary
+
+# California
+var.upwelling.california <- leveneTest(upwelling ~ period, california.mean)
+var.upwelling.california
+
+# Humboldt
+var.upwelling.humboldt <- leveneTest(upwelling ~ period, humboldt.mean)
+var.upwelling.humboldt
+
+# Benguela
+var.upwelling.benguela <- leveneTest(upwelling ~ period, benguela.mean)
+var.upwelling.benguela
+```
+
+Based on the p-values of our test results, we can conclude that the variances differ at the Benguela site since the significance code indicates a p-value that is >0.05. For all other sites, however, the p-values do not exceed 0.05, meaning we can reject the null hypothesis at the California, Humboldt, and Canary sites and assert that the variances statistically differ in a significant way.
+
 ## 3.
+```{r}
+# Compute variance for California
+var.upwelling.california <- aggregate(upwelling ~ period, FUN = var,
+  data = california.mean)
+# Compute variance for Canary
+var.upwelling.canary <- aggregate(upwelling ~ period, FUN = var,
+  data = canary.mean)
+# Compute variance for Humboldt
+var.upwelling.humboldt <- aggregate(upwelling ~ period, FUN = var,
+  data = humboldt.mean)
+# Compute variance for Benguela
+var.upwelling.benguela <- aggregate(upwelling ~ period, FUN = var,
+  data = benguela.mean)
+# Combine data
+var.upwelling <- data.frame(region = c("Canary", "California",
+  "Benguela", "Humboldt"), after = c(var.upwelling.canary$upwelling[2],
+  var.upwelling.california$upwelling[2], var.upwelling.benguela$upwelling[2],
+  var.upwelling.humboldt$upwelling[2]), before = c(var.upwelling.canary$upwelling[1],
+  var.upwelling.california$upwelling[1], var.upwelling.benguela$upwelling[1],
+  var.upwelling.humboldt$upwelling[1]))
+var.upwelling
+
+# plot the results
+bp <- barplot(t(as.matrix(var.upwelling[, 2:3])), beside = TRUE, ylim = c(0, 0.005), xlab = "Region", names = var.upwelling$region, ylab = "Variance", main = "Before vs. After Upwelling Variance for EBCS Regions", legend = TRUE)
+```
 
 ## 4.
+Upwelling means decreased over time across all four regional groups; however, variance increased over time within the Benguela and California, whereas variance decreased over time in Canary and Humboldt. Because variance increased over time in California and Benguela, this means the robustness and consistency of the upwelling means decreased over time in these regions, whereas lowering variance in Humboldt and Canary raises the robustness and consistency of the upwelling means over time.
 
 # Problem 3
 ## 1.
+Since each EBCS will be examined individually, our explanatory variable is time (year) and the response variable is upwelling. Due to the singular nature of both variables, an analysis utilizing simple linear regression may be applied.
 
+## 2.
+The assumptions of the test are that the variables are linearly related, the residuals are independent, the residuals have identical homoscedacities, and that the residuals are normally distributed. All of the assumptions are met with the exception of normality specifically within Canary and Humboldt, wherein we know that the 'after' period does not contain normally distributed data; thus, we cannot extrapolate such that the residuals in these data sets will be normally distributed.
+H0: There is no relationship between upwelling and year.
+HA: There is a relationship between upwelling and year.
+```{r}
+# run simple regression tests on each region
+benguela.lm = lm(upwelling ~ year, benguela.mean)
+summary(benguela.lm)
+california.lm = lm(upwelling ~ year, california.mean)
+summary(california.lm)
+humboldt.lm = lm(upwelling ~ year, humboldt.mean)
+summary(humboldt.lm)
+canary.lm = lm(upwelling ~ year, canary.mean)
+summary(canary.lm)
+```
 
+## 3.
+```{r}
+par(mfrow = c(1, 1))
+plot(upwelling ~ year, data = benguela.mean, ylim = c(0.2, 1.1), ylab = expression(paste("Upwelling (",
+  m^2/s, ")")), xlab = "Year", col = "blue")
+points(upwelling ~ year, data = canary.mean, col = "red")
+points(upwelling ~ year, data = california.mean, col = "green")
+points(upwelling ~ year, data = humboldt.mean, col = "black")
+# Add trend lines from your analysis. Insert the model
+# name into the XXXX fields
+abline(humboldt.lm, col = "black")
+abline(canary.lm, col = "red")
+abline(benguela.lm, col = "blue")
+abline(california.lm, col = "green")
+legend(x = "topleft", lty = 1, col = c("blue", "red", "green",
+  "black"), legend = c("Benguela", "Canary", "California",
+  "Humboldt"))
+```
 
+The figure shows that upwelling increases over time in Benguela, Canary, and Humboldt, whereas it remained steady in California.

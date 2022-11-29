@@ -60,6 +60,7 @@ The d1.trt:d2.trt-d1.ctrl:d2.ctrl comparison has the greatest negative HIV score
 require(multcompView, quietly = TRUE)
 # Compute the mean and std error of each group. You can do this a different way, if you like
 means <- tapply(log10(d1$score), list(d1$drug1, d1$drug2), mean)
+means
 stderrs <- tapply(log10(d1$score), list(d1$drug1, d1$drug2), function(x) sd(x)/sqrt(length(x)))
 # Assign a label to each bar. You will need to insert the name of your model object
 labels <- multcompLetters(hiv.tukey$`drug1:drug2`[, "p adj"])$Letters
